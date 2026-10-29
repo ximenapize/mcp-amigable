@@ -61,6 +61,74 @@ Con `--directory`, `uv` usa el entorno del repo y el servidor encuentra `glosari
 
 Usen la ruta completa de `uv` (la da `which uv`): la app de escritorio no siempre ve el mismo `PATH` que la terminal.
 
+## Servidor remoto
+
+En lugar de que cada persona lo instale, el servidor se puede publicar en internet y conectar con una URL.
+
+### Cómo funciona
+
+En modo local, el servidor corre en la computadora de cada usuario, y cada uno le pide los datos al MEF desde su
+propia IP. En modo remoto, el Claude de cada usuario le habla a un solo servidor, y es ese servidor el que va a la
+Consulta Amigable:
+
+```
+Usuario A: Claude ──┐
+Usuario B: Claude ──┼──► servidor remoto ──► Consulta Amigable   (el MEF ve una sola IP: la del servidor)
+Usuario C: Claude ──┘
+```
+
+Nadie tiene que instalar nada y la caché es compartida: lo que consulta uno le sirve al resto. A cambio, todos los
+pedidos salen de la misma IP (ver los riesgos más abajo).
+
+### Probarlo en local
+
+```bash
+MCP_TRANSPORT=http AMIGABLE_TOKEN=una-clave uv run server.py      # escucha en http://localhost:8000/mcp
+curl localhost:8000/salud                                          # responde "ok"
+```
+
+| Variable | Para qué | Por defecto |
+|---|---|---|
+| `MCP_TRANSPORT` | `http` para el modo remoto | stdio (local) |
+| `PORT` | Puerto | `8000` |
+| `AMIGABLE_TOKEN` | Clave compartida: si existe, cada pedido debe traer `Authorization: Bearer <clave>` | sin clave: abierto |
+| `AMIGABLE_CACHE` | Carpeta de la caché | `datos/cache/` |
+
+### Publicarlo
+
+El repo trae un `Dockerfile` que sirve para cualquier hosting de contenedores:
+
+- **Render o Railway:** creen un servicio web desde el repo de GitHub con el entorno Docker. Agreguen la variable
+  `AMIGABLE_TOKEN` en el panel y usen `/salud` como ruta de health check.
+- **Google Cloud Run:** `gcloud run deploy amigable-mef --source . --set-env-vars AMIGABLE_TOKEN=una-clave`.
+- **FastMCP Cloud:** conecten el repo y pongan `server.py:mcp` como punto de entrada.
+
+La URL del servidor es la del servicio más `/mcp`, por ejemplo `https://amigable-mef.onrender.com/mcp`.
+
+### Conectarse al servidor remoto
+
+En Claude Code:
+
+```bash
+claude mcp add --transport http amigable-mef https://<servidor>/mcp --header "Authorization: Bearer una-clave"
+```
+
+En claude.ai o Claude Desktop, agréguenlo como conector personalizado con la URL. Esos conectores se autentican con
+OAuth, no con una clave fija, así que por ahora el servidor tiene que estar sin `AMIGABLE_TOKEN` (abierto) para
+usarlo desde ahí.
+
+### Riesgos del modo remoto
+
+- **La Consulta Amigable puede bloquear al servidor.** Tiene protección contra bots (Incapsula) y suele desconfiar
+  de las IPs de centros de datos. Lo primero después de publicarlo es hacer una consulta de prueba. Si bloquea, la
+  alternativa es alojarlo en una máquina con IP de oficina.
+- **Todos los pedidos salen de una IP.** El servidor hace los pedidos de a uno, con 0.7 s entre cada uno. Con
+  muchos usuarios a la vez las respuestas se demoran, pero no se dispara la cantidad de pedidos.
+- **Sin clave, cualquiera con la URL lo usa.** Los datos son públicos, pero el tráfico sale a nombre de su
+  servidor. Para un equipo, usen `AMIGABLE_TOKEN`.
+- **La caché del contenedor se borra al reiniciar.** Se vuelve a llenar sola; si quieren conservarla, monten un
+  disco y apunten `AMIGABLE_CACHE` ahí.
+
 ## Uso
 
 Para comprobar que está conectado, escriban `/mcp` en Claude Code: deben ver `amigable-mef` con sus 4

@@ -3,6 +3,10 @@
     uv run pytest -q                                                  # las pruebas, con datos reales
     uv run server.py                                                  # el servidor, por stdio
     claude mcp add --scope project amigable-mef -- uv run server.py   # conectarlo a Claude Code
+    MCP_TRANSPORT=http uv run server.py                               # como servidor remoto, en :8000/mcp
+
+Variables de entorno del modo remoto: MCP_TRANSPORT=http, PORT (8000 por defecto), AMIGABLE_TOKEN (si existe,
+cada pedido debe traer "Authorization: Bearer <token>") y AMIGABLE_CACHE (carpeta de la caché).
 
 La Consulta Amigable no tiene API: es una página ASP.NET que se recorre con postbacks. Este servidor repite los
 clics (agrupar por un criterio, elegir una fila, agrupar por el siguiente) y lee la tabla. Las cuentas las hace
@@ -11,6 +15,7 @@ Python, no el modelo: así cada cifra sale de una consulta que se puede repetir 
 import hashlib
 import html
 import json
+import os
 import re
 import threading
 import time
@@ -23,9 +28,12 @@ import httpx
 import pandas as pd
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
+from fastmcp.server.auth.providers.jwt import StaticTokenVerifier
+from starlette.responses import PlainTextResponse
 
 AQUI = Path(__file__).parent
-CACHE = AQUI / "datos" / "cache"
+CACHE = Path(os.environ.get("AMIGABLE_CACHE", AQUI / "datos" / "cache"))
+TOKEN = os.environ.get("AMIGABLE_TOKEN")    # una clave compartida para el modo remoto; sin ella, queda abierto
 GLOSARIO = AQUI / "glosario.csv"      # lo arma construir_glosario.py desde los clasificadores del MEF
 NAVEGADOR = "https://apps5.mineco.gob.pe/transparencia/Navegador/"
 SOLO_LECTURA = {"readOnlyHint": True, "openWorldHint": True}
@@ -53,7 +61,14 @@ mcp = FastMCP("amigable-mef", instructions=(
     "devuelven. Cita siempre el año, la ruta y la fuente de cada cifra. Si la pregunta pide un detalle que la "
     "Consulta Amigable no tiene (una provincia por ubicación, una enfermedad sin programa propio), no la cambies "
     "por otra en silencio: dilo, da la cifra del nivel más cercano que sí existe explicando qué incluye, y ofrece "
-    "las alternativas sin ejecutarlas hasta que el usuario las pida."))
+    "las alternativas sin ejecutarlas hasta que el usuario las pida."),
+    auth=StaticTokenVerifier({TOKEN: {"client_id": "amigable-mef", "scopes": []}}) if TOKEN else None)
+
+
+@mcp.custom_route("/salud", methods=["GET"])
+async def salud(request):
+    """Para que el servicio de hosting sepa que el servidor está vivo. No consulta al MEF."""
+    return PlainTextResponse("ok")
 
 _candado = threading.Lock()
 _ultimo_pedido = 0.0
@@ -419,4 +434,7 @@ Respóndela con el servidor amigable-mef, en este orden:
 
 
 if __name__ == "__main__":
-    mcp.run()
+    if os.environ.get("MCP_TRANSPORT") == "http":
+        mcp.run(transport="http", host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
+    else:
+        mcp.run()

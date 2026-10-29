@@ -1,0 +1,7 @@
+.venv/
+datos/
+__pycache__/
+.pytest_cache/
+.git/
+resultados*.csv
+grafico.png
