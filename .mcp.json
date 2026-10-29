@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "mcp-amigable": {
+    "amigable-mef": {
       "type": "stdio",
       "command": "uv",
       "args": [

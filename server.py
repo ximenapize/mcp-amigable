@@ -2,7 +2,7 @@
 
     uv run pytest -q                                                  # las pruebas, con datos reales
     uv run server.py                                                  # el servidor, por stdio
-    claude mcp add --scope project mcp-amigable -- uv run server.py   # conectarlo a Claude Code
+    claude mcp add --scope project amigable-mef -- uv run server.py   # conectarlo a Claude Code
 
 La Consulta Amigable no tiene API: es una página ASP.NET que se recorre con postbacks. Este servidor repite los
 clics (agrupar por un criterio, elegir una fila, agrupar por el siguiente) y lee la tabla. Las cuentas las hace
@@ -46,7 +46,7 @@ CRITERIOS = {
 }
 MONTOS = ["pia", "pim", "compromiso_anual", "atencion_compromiso_mensual", "devengado", "girado", "certificacion"]
 
-mcp = FastMCP("mcp-amigable", instructions=(
+mcp = FastMCP("amigable-mef", instructions=(
     "Presupuesto y ejecución del gasto público del Perú (Gobierno Nacional, regional y local) desde la Consulta "
     "Amigable del MEF. Usa consultar para recorrer la información como en la web: agrupa por un criterio, elige "
     "una fila por su código y vuelve a agrupar. No sumes ni calcules porcentajes a mano: las herramientas ya los "
@@ -85,7 +85,7 @@ def _filas(pagina):
                                    pagina, flags=re.S):
         partes = valor.split("/")
         nombre = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", texto))).strip()
-        fila = {"codigo": partes[0].strip(), "nombre": nombre.split(": ", 1)[-1], "_radio": valor}
+        fila = {"codigo": partes[0].strip(), "nombre": nombre.split(": ", 1)[-1].strip("' "), "_radio": valor}
         fila |= {m: round(float(x or 0), 2) for m, x in zip(MONTOS, partes[1:])}   # años viejos traen vacíos
         fila["avance_pct"] = round(100 * fila["devengado"] / fila["pim"], 1) if fila["pim"] else None
         filas.append(fila)
@@ -390,7 +390,7 @@ def consulta(pregunta: str) -> str:
     traduce la pregunta a una ruta de filtros, consulta y cita cada cifra."""
     return f"""Pregunta: {pregunta}
 
-Respóndela con el servidor mcp-amigable, en este orden:
+Respóndela con el servidor amigable-mef, en este orden:
 
 1. Traduce la pregunta a filtros de la Consulta Amigable. Piensa en sus cuatro preguntas:
    - ¿Quién gasta? nivel_gobierno (E nacional, R regional, M local) → sector → pliego, o para municipalidades

@@ -1,4 +1,4 @@
-# mcp-amigable
+# amigable-mef
 
 Un servidor MCP que le da a Claude acceso a la **Consulta Amigable del MEF**: el presupuesto (PIA, PIM) y la
 ejecución (certificación, compromiso, devengado, girado) del gasto público del Perú, de los tres niveles de
@@ -27,18 +27,29 @@ Necesitan [`uv`](https://docs.astral.sh/uv/), internet y Claude Code.
 
 ```bash
 uv run pytest -q                 # las pruebas, con datos reales de la Consulta Amigable
-claude                           # en esta carpeta: .mcp.json ya conecta mcp-amigable y fetch
+claude                           # en esta carpeta: .mcp.json ya conecta amigable-mef y fetch
 ```
 
 En Claude Code:
 
-- `/mcp` muestra `mcp-amigable` y `fetch` conectados.
+- `/mcp` muestra `amigable-mef` y `fetch` conectados.
 - *«¿Cuánto ejecutó la Municipalidad de Lima en seguridad ciudadana en 2025?»*
-- `@mcp-amigable:amigable://clasificador/gasto/2.3` para la ficha de bienes y servicios.
-- `/mcp__mcp-amigable__consulta presupuesto de carreteras en Cajamarca 2020-2024`
+- `@amigable-mef:amigable://clasificador/gasto/2.3` para la ficha de bienes y servicios.
+- `/mcp__amigable-mef__consulta presupuesto de carreteras en Cajamarca 2020-2024`
 
 Las consultas se guardan en `datos/cache/` (git la ignora). Los años cerrados quedan guardados; el año en curso se
 vuelve a pedir al día siguiente, porque cambia a diario.
+
+## La evaluación
+
+`evaluar.py` le hace las 10 preguntas de `preguntas.csv` a Claude con `claude -p`, sin herramientas, con búsqueda
+web y con este MCP, y las califica contra la cifra oficial. `grafico.py` dibuja `grafico.png` desde
+`resultados.csv`. El análisis está en [`informe.md`](informe.md).
+
+```bash
+uv run evaluar.py --modos memoria web mcp      # unos 5 minutos con Haiku
+uv run grafico.py
+```
 
 ## El glosario
 

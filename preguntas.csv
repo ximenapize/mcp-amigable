@@ -1,0 +1,11 @@
+id,pregunta,verdad,tolerancia,anio,ruta_en_la_web,verificado
+pim_total_2025,"¿Cuál fue el PIM total del gasto público del Perú (los tres niveles de gobierno) en 2025, en millones de soles?",272450.86,1,2025,Consulta Amigable 2025: fila TOTAL,web 2026-10-28
+dev_interior_2025,"¿Cuánto devengó el pliego Ministerio del Interior en 2025, en millones de soles?",14402.69,1,2025,Nivel de Gobierno E > Sector 07 > Pliego 007,web 2026-10-28
+pim_mml_2025,"¿Cuál fue el PIM de la Municipalidad Metropolitana de Lima en 2025, en millones de soles?",3206.13,1,2025,Nivel de Gobierno M > Gob.Loc. M > Departamento 15 > Provincia 01 > Municipalidad 301250,web 2026-10-28
+seg_lima_2025,"¿Cuánto devengó la Municipalidad Metropolitana de Lima en 2025 en el grupo funcional Seguridad vecinal y comunal, en millones de soles?",89.96,0.1,2025,... Municipalidad 301250 > Función 05 > División funcional 014 > Grupo funcional 0031,PENDIENTE: Ximena
+pia_carreteras_caj_2020,"¿Cuál fue el PIA de 2020 para transporte terrestre (división funcional 033) en el departamento de Cajamarca, sumando los tres niveles de gobierno, en millones de soles?",872.44,0.5,2020,Año 2020: Departamento 06 > Función 15 > División funcional 033,PENDIENTE: Ximena
+var_0017_2021_2025,¿En qué porcentaje varió el PIM del programa presupuestal 0017 Enfermedades metaxénicas y zoonosis entre 2021 y 2025?,33.1,0.2,2021-2025,Categoría Presupuestal > 0017 en 2021 (408.59 M) y en 2025 (544.00 M),PENDIENTE: Ximena
+dev_cusco_2025,"¿Cuánto devengó el sector público (los tres niveles de gobierno) en el departamento de Cusco en 2025, en millones de soles?",11548.30,1,2025,¿Dónde se gasta? Departamento > 08: CUSCO,web 2026-10-28 (Ximena)
+dev_salud_gn_2025,"¿Cuánto devengó el sector Salud del Gobierno Nacional en 2025, en millones de soles?",14145.62,1,2025,Nivel de Gobierno E > Sector 11: SALUD,web 2026-10-28 (Ximena)
+pim_canon_2024,"¿Cuál fue el PIM financiado con el rubro Canon y sobrecanon, regalías, renta de aduanas y participaciones en 2024, en millones de soles?",23772.70,1,2024,Año 2024: Rubro > 18,web 2026-10-28 (Ximena)
+avance_regionales_2024,"¿Cuál fue el avance de ejecución (devengado / PIM) de los gobiernos regionales del Perú en 2024, en %?",94.9,0.1,2024,Año 2024: Nivel de Gobierno > R: GOBIERNOS REGIONALES,web 2026-10-28 (Ximena)

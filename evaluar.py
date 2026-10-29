@@ -24,7 +24,7 @@ INSTRUCCION = ("Responde con un solo número en «valor», en la unidad que pide
 MODOS = {   # todas sin las herramientas de archivos y terminal de Claude Code
     "memoria": ["--tools", "", "--strict-mcp-config"],
     "web": ["--tools", "WebSearch,WebFetch", "--allowedTools", "WebSearch,WebFetch", "--strict-mcp-config"],
-    "mcp": ["--tools", "", "--strict-mcp-config", "--mcp-config", str(AQUI / ".mcp.json"), "--allowedTools", "mcp__mcp-amigable"],
+    "mcp": ["--tools", "", "--strict-mcp-config", "--mcp-config", str(AQUI / ".mcp.json"), "--allowedTools", "mcp__amigable-mef"],
 }
 
 
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     p.add_argument("--paralelo", type=int, default=4)
     a = p.parse_args()
     if "mcp" in a.modos and not (AQUI / ".mcp.json").exists():
-        raise SystemExit("Falta .mcp.json. Conecten su servidor: claude mcp add --scope project mcp-amigable -- uv run server.py")
+        raise SystemExit("Falta .mcp.json. Conecten su servidor: claude mcp add --scope project amigable-mef -- uv run server.py")
 
     preguntas = pd.read_csv(a.preguntas)
     casos = [(q, m) for q in preguntas.itertuples() for m in a.modos]
